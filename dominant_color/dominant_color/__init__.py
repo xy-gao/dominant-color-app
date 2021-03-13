@@ -1,0 +1,1 @@
+from .dominant_color import DominantColorExtractor
