@@ -1,6 +1,7 @@
 import os
 from unittest.mock import Mock
 
+import numpy as np
 import pytest
 from dominant_color import DominantColorExtractor
 
@@ -31,10 +32,6 @@ def test__read_image_to_rgbs(image_file, expected_shape):
     assert actual.shape == expected_shape
 
 
-# @pytest.mark.parametrize("number_of_colors, expected_shape", [(3, (3, 3)), (4, (4, 3))])
-# assert actual.shape == expected_shape
-
-
 @pytest.fixture
 def patch_methods(monkeypatch):
     monkeypatch.setattr(DominantColorExtractor, "_resize", Mock())
@@ -56,7 +53,7 @@ def test_extract_resize(patch_methods):
         DominantColorExtractor._resize.return_value
     )
     DominantColorExtractor._extract.assert_called_once_with(
-        number_of_colors, DominantColorExtractor._reshape_to_two_dim.return_value
+        DominantColorExtractor._reshape_to_two_dim.return_value, number_of_colors
     )
     assert actual == DominantColorExtractor._extract.return_value
 
@@ -72,6 +69,36 @@ def test_extract_original_size(patch_methods):
 
     DominantColorExtractor._reshape_to_two_dim.assert_called_once_with(sut.image_rgbs)
     DominantColorExtractor._extract.assert_called_once_with(
-        number_of_colors, DominantColorExtractor._reshape_to_two_dim.return_value
+        DominantColorExtractor._reshape_to_two_dim.return_value, number_of_colors
     )
     assert actual == DominantColorExtractor._extract.return_value
+
+
+def test__extract():
+    number_of_colors = 5
+    rgb_array = np.random.rand(10, 3)
+
+    actual = DominantColorExtractor._extract(rgb_array, number_of_colors)
+
+    assert len(actual) == 5
+    for color, ratio in actual:
+        assert color.shape == (3,)
+        assert color.dtype == "uint8"
+        assert ratio >= 0
+        assert ratio <= 1
+
+
+def test__reshape_to_two_dim():
+    image_array = np.random.rand(10, 5, 3)
+
+    actual = DominantColorExtractor._reshape_to_two_dim(image_array)
+
+    assert actual.shape == (50, 3)
+
+
+def test__resize():
+    image_array = np.random.rand(1000, 1200, 3)
+
+    acutal = DominantColorExtractor._resize(image_array)
+
+    assert acutal.shape == (256, 256, 3)
