@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Color Extraction</title>
+</head>
+
+<body>
+    <label>Choose a image:</label>
+    <br>
+    <input type="file" id="inputimage" accept="image/png, image/jpeg" onchange="clearResult(); readURL(this);" />
+    <br>
+    <label for="number">number of colors:</label>
+    <select name="number" id="number" onchange="clearResult();">
+    </select>
+    <br>
+    <button type="submit" onclick="clearResult(); extractColor();">Extract</button>
+    <br>
+    <img id="imgselected" src="#" alt="your image" style="height: 50%" />
+    <div id="result">Results:</div>
+    <script>
+        for (var d = 1; d <= 10; d++) {
+            var opt = document.createElement("option");
+            opt.innerHTML = String(d);
+            opt.value = d;
+            document.getElementById("number").appendChild(opt);
+        }
+        function clearResult() {
+            document.getElementById('result').innerHTML = '';
+        }
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    document.getElementById("imgselected").src = e.target.result;
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        function extractColor() {
+            const file = document.getElementById("inputimage").files[0];
+            const formData = new FormData();
+            formData.append("file", file);
+            fetch(`/extract/?n_color=${document.getElementById('number').value}`, { method: "POST", body: formData })
+                .then(response => response.json())
+                .then(data => {
+                    createColor(data);
+                })
+                .catch(err => {
+                    console.error('Fetch error:', err);
+                })
+        }
+
+        function createColor(data) {
+            data.result.forEach(function (item) {
+                var color = document.createElement("P");
+                color.innerHTML = `rgb(${item.rgb.r}, ${item.rgb.g}, ${item.rgb.b})`;
+                color.style.backgroundColor = color.innerHTML;
+                color.style.width = `${item.rate * 100}%`;
+                document.getElementById("result").appendChild(color);
+            }
+            );
+        }
+    </script>
+</body>
+
+</html>
