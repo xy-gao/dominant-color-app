@@ -2,12 +2,19 @@ import shutil
 from tempfile import NamedTemporaryFile
 from typing import List
 
+from dominant_color import DominantColorExtractor
 from fastapi import FastAPI, File, Query, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from dominant_color import DominantColorExtractor
-
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class Rgb(BaseModel):

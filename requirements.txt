@@ -1,0 +1,6 @@
+./dominant_color
+fastapi[all]==0.63.0
+pydantic==1.8.1
+python-multipart==0.0.5
+uvicorn[standard]==0.13.4
+requests==2.25.1
