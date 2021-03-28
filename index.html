@@ -43,7 +43,7 @@
             const file = document.getElementById("inputimage").files[0];
             const formData = new FormData();
             formData.append("file", file);
-            fetch(`https://dominant-color-app.an.r.appspot.com/extract/?n_color=${document.getElementById('number').value}`, { method: "POST", body: formData })
+            fetch(`https://dominant-color-app.an.r.appspot.com/extract/?n_color=${document.getElementById('number').value}`, { method: "POST", mode: 'cors', body: formData })
                 .then(response => response.json())
                 .then(data => {
                     createColor(data);
